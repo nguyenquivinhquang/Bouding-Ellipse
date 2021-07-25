@@ -1,0 +1,1 @@
+DATASET_PATH = 'E:\\AIC-Reid\\AIC20_track2\AIC20_ReID\\'
