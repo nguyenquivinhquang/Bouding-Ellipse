@@ -105,7 +105,7 @@ def train(epoch):
     if epoch//5 == 0 or train_loss < best_loss:
         print(epoch, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                         % (train_loss, 100.*correct/total, correct, total))
-        save_path = save_model + "/checkpoint/Cifar10-epoch-" + str(epoch) + ".pth"
+        save_path = save_model + "/checkpoint/ellipse-epoch-" + str(epoch) + ".pth"
         
         # Save model afer each epoch
         torch.save({
