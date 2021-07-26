@@ -121,14 +121,14 @@ def validate():
     total = 0
     for batch_idx, (inputs, targets) in enumerate(testloader):
         inputs, targets = inputs.to(device), targets.to(device)
-        
-        outputs = model(inputs)
-        loss = criterion(outputs, targets).mean()
-        test_loss += loss.item()
-        _, predicted = outputs.max(1)
-        total += targets.size(0)
-        iou = get_IOU_loss(outputs,targets)
-        correct += torch.sum(iou[iou < 0.1])
+        with torch.no_grad():
+            outputs = model(inputs)
+            loss = criterion(outputs, targets).mean()
+            test_loss += loss.item()
+            _, predicted = outputs.max(1)
+            total += targets.size(0)
+            iou = get_IOU_loss(outputs,targets)
+            correct += torch.sum(iou[iou < 0.1])
 
     test_loss /= test_loss/(batch_idx+1)
     print(len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
