@@ -88,13 +88,11 @@ def train(epoch):
         optimizer.zero_grad()
         outputs = model(inputs)
         loss = criterion(outputs, targets).mean()
-        print(loss)
         loss.backward()
         # loss.sum().backward()
         optimizer.step()
 
         train_loss += loss.item()
-        print(train_loss)
         _, predicted = outputs.max(1)
         total += targets.size(0)
         iou = get_IOU_loss(outputs,targets)
