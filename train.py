@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-batch_size', type=int, default=128, help='batch size for dataloader')
 parser.add_argument('-google_drive', type=str, default='./', help='Train on colab')
 parser.add_argument('-total_epoch', type=int, default=200, help='Total epoch want to train')
+parser.add_argument('-save_model', type=str, default='./', help='Path to save trained model')
 
 args = parser.parse_args()
 
@@ -27,10 +28,12 @@ dataset_download = True
 learning_rate = 0.1
 path = args.google_drive
 total_epoch = args.total_epoch
+save_model = args.save_model
+label_path = path + "/train_label.csv"
+img_path = path + "/img/"
 
-label_path = path + '/train_label.csv'
-img_path = path + '/img/'
-try: os.mkdir('.checkppoint')
+print(label_path)
+try: os.mkdir('.checkpoint/')
 except: pass
 
 
@@ -70,8 +73,9 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 # Define loss history
 loss_history = []
 cur_epoch = 0
-
+best_loss = 1000000
 def train(epoch):
+    global best_loss
     print('\nEpoch: %d' % epoch)
     model.train()
     train_loss = 0
@@ -83,30 +87,34 @@ def train(epoch):
 
         optimizer.zero_grad()
         outputs = model(inputs)
-        loss = criterion(outputs, targets).sum()
+        loss = criterion(outputs, targets).mean()
+        print(loss)
         loss.backward()
         # loss.sum().backward()
         optimizer.step()
 
         train_loss += loss.item()
+        print(train_loss)
         _, predicted = outputs.max(1)
         total += targets.size(0)
         iou = get_IOU_loss(outputs,targets)
         correct += torch.sum(iou[iou < 0.1])
 
     train_loss = train_loss/(batch_idx+1)
-    print(epoch, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                     % (train_loss, 100.*correct/total, correct, total))
-    save_path = path + "checkpoint/Cifar10-epoch-" + str(epoch) + ".pth"
-    
-    # Save model afer each epoch
-    torch.save({
-            'epoch': epoch,
-            'model_state_dict': model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'loss': train_loss,}, save_path )
-    
-    
+
+    if epoch//5 == 0 or train_loss < best_loss:
+        print(epoch, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                        % (train_loss, 100.*correct/total, correct, total))
+        save_path = save_model + "/checkpoint/Cifar10-epoch-" + str(epoch) + ".pth"
+        
+        # Save model afer each epoch
+        torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': train_loss,}, save_path )
+        if train_loss < best_loss: best_loss = train_loss
+        
     loss_history.append(train_loss)
 def validate():
     
