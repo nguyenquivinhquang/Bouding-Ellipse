@@ -28,8 +28,8 @@ learning_rate = 0.1
 path = args.google_drive
 total_epoch = args.total_epoch
 
-label_path = 'dataset/train_label.csv'
-img_path = 'dataset/img/'
+label_path = path + '/train_label.csv'
+img_path = path + '/img/'
 try: os.mkdir('.checkppoint')
 except: pass
 
@@ -53,7 +53,8 @@ total_data = len(dataset)
 total_train = int(0.8 * total_data)
 total_val = total_data - total_train
 train_set, val_set = torch.utils.data.random_split(dataset, [total_train, total_val])
-trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=1)
+trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=4)
+testloader = DataLoader(val_set, batch_size=batch_size, shuffle=True, num_workers=4)
 
 #------ Define network ----- #
 model = fbresnet18()
@@ -91,7 +92,7 @@ def train(epoch):
         _, predicted = outputs.max(1)
         total += targets.size(0)
         iou = get_IOU_loss(outputs,targets)
-        total += torch.sum(iou[iou < 0.1])
+        correct += torch.sum(iou[iou < 0.1])
 
     train_loss = train_loss/(batch_idx+1)
     print(epoch, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
@@ -107,13 +108,33 @@ def train(epoch):
     
     
     loss_history.append(train_loss)
+def validate():
+    
+    test_loss = 0
+    correct = 0
+    total = 0
+    for batch_idx, (inputs, targets) in enumerate(testloader):
+        inputs, targets = inputs.to(device), targets.to(device)
+        
+        outputs = model(inputs)
+        loss = criterion(outputs, targets)
+
+        test_loss += loss.item()
+        _, predicted = outputs.max(1)
+        total += targets.size(0)
+        iou = get_IOU_loss(outputs,targets)
+        correct += torch.sum(iou[iou < 0.1])
+
+    test_loss /= test_loss/(batch_idx+1)
+    print(len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                     % (test_loss, 100.*correct/total, correct, total))
+
 
 if __name__ == '__main__':    
     for epoch in range(cur_epoch, total_epoch):
-        
         time_start = time.time()
         train(epoch)
-        # validate()
+        validate()
         time_elapsed = time.time() - time_start
         print('Training complete in {:.0f}m {:.0f}s'.format( time_elapsed // 60, time_elapsed % 60))
         if (epoch // 5 == 0): scheduler.step()
