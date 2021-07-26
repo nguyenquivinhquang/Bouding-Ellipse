@@ -123,8 +123,7 @@ def validate():
         inputs, targets = inputs.to(device), targets.to(device)
         
         outputs = model(inputs)
-        loss = criterion(outputs, targets)
-
+        loss = criterion(outputs, targets).mean()
         test_loss += loss.item()
         _, predicted = outputs.max(1)
         total += targets.size(0)
