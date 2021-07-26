@@ -2,3 +2,5 @@
 *.pyc
 visualize/
 dataset/img/
+*.rar
+*.zip

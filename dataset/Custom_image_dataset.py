@@ -16,9 +16,10 @@ def handle_input(label_path):
     
     return np.array(labels)
 def transform_label(label):
-    label[0] = (label[0]-112)
-    label[1] = (label[1]-112)
-    label[0:3] /= 224
+    label[0] = (label[0]-112)/224
+    label[1] = (label[1]-112)/224
+    label[2] /= 224
+    label[3] /=224
     label[4] / pi
     return label
     

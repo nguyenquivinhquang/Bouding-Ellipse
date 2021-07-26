@@ -9,9 +9,10 @@ import torch.nn as nn
 import torch.optim as optim
 import time
 from models.resnet import fbresnet18
-from models.loss_function import ellipse_loss
+from models.loss_function import ellipse_loss, get_IOU_loss
 import argparse
 import os
+
 # ----- Init param -----#
 parser = argparse.ArgumentParser()
 parser.add_argument('-batch_size', type=int, default=128, help='batch size for dataloader')
@@ -33,14 +34,14 @@ try: os.mkdir('.checkppoint')
 except: pass
 
 
-batch_size = 2
-total_epoch = 1
+# batch_size = 2
+# total_epoch = 1
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(device)
 #-------handle data ------- #
 transform_train_list = [
     transforms.ToPILImage(),
-    transforms.Resize((224,224), interpolation=3),
+    transforms.Resize((224,224)),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -52,7 +53,7 @@ total_data = len(dataset)
 total_train = int(0.8 * total_data)
 total_val = total_data - total_train
 train_set, val_set = torch.utils.data.random_split(dataset, [total_train, total_val])
-trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=2)
+trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=1)
 
 #------ Define network ----- #
 model = fbresnet18()
@@ -81,17 +82,18 @@ def train(epoch):
 
         optimizer.zero_grad()
         outputs = model(inputs)
-        print(outputs, targets)
-        loss = criterion(outputs, targets)
+        loss = criterion(outputs, targets).sum()
         loss.backward()
+        # loss.sum().backward()
         optimizer.step()
 
         train_loss += loss.item()
         _, predicted = outputs.max(1)
         total += targets.size(0)
-        correct += predicted.eq(targets).sum().item()
+        iou = get_IOU_loss(outputs,targets)
+        total += torch.sum(iou[iou < 0.1])
 
-    train_loss /= train_loss/(batch_idx+1)
+    train_loss = train_loss/(batch_idx+1)
     print(epoch, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                      % (train_loss, 100.*correct/total, correct, total))
     save_path = path + "checkpoint/Cifar10-epoch-" + str(epoch) + ".pth"
