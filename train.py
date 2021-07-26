@@ -115,7 +115,7 @@ def train(epoch):
         
     loss_history.append(train_loss)
 def validate():
-    model.eval()
+    model.no_grad()
     test_loss = 0
     correct = 0
     total = 0
