@@ -57,7 +57,7 @@ total_train = int(0.8 * total_data)
 total_val = total_data - total_train
 train_set, val_set = torch.utils.data.random_split(dataset, [total_train, total_val])
 trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=4)
-testloader = DataLoader(val_set, batch_size=batch_size, shuffle=True, num_workers=4)
+testloader = DataLoader(val_set, batch_size=batch_size, shuffle=True, num_workers=2)
 
 #------ Define network ----- #
 model = fbresnet18()
