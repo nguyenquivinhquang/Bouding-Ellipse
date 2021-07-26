@@ -139,8 +139,11 @@ if __name__ == '__main__':
     for epoch in range(cur_epoch, total_epoch):
         time_start = time.time()
         train(epoch)
-        validate()
+        
         time_elapsed = time.time() - time_start
         print('Training complete in {:.0f}m {:.0f}s'.format( time_elapsed // 60, time_elapsed % 60))
+        validate()
+        torch.cuda.empty_cache()
+
         if (epoch // 5 == 0): scheduler.step()
         print('Epoch {}, lr {}'.format(epoch, optimizer.param_groups[0]['lr']))
