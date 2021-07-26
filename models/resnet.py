@@ -123,9 +123,8 @@ class FBResNet(nn.Module):
         self.layer2 = self._make_layer(block, 16, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 8, layers[2], stride=2)
         # self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
-        self.first_linear = nn.Linear(8 * block.expansion, 1024)
-        self.mid_linear = nn.Linear(1024, 512)
-        self.last_linear = nn.Linear(512,num_classes)
+        self.last_linear = nn.Linear(8 * block.expansion, num_classes)
+
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
@@ -162,6 +161,7 @@ class FBResNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
+        # x = self.layer4(x)
         return x
 
 
@@ -180,8 +180,6 @@ class FBResNet(nn.Module):
         adaptiveAvgPoolWidth = int(adaptiveAvgPoolWidth)
         x = F.avg_pool2d(x, kernel_size=adaptiveAvgPoolWidth)
         x = x.view(x.size(0), -1)
-        x = self.first_linear(x)
-        x = self.mid_linear(x)
         x = self.last_linear(x)
         return x
 
