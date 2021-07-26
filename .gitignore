@@ -1,2 +1,4 @@
 
 *.pyc
+visualize/
+dataset/img/
