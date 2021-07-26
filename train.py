@@ -93,16 +93,15 @@ def train(epoch):
         optimizer.step()
 
         train_loss += loss.item()
-        _, predicted = outputs.max(1)
         total += targets.size(0)
         iou = get_IOU_loss(outputs,targets)
         correct += torch.sum(iou[iou < 0.1])
 
     train_loss = train_loss/(batch_idx+1)
-
-    if epoch//5 == 0 or train_loss < best_loss:
-        print(epoch, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+    print(epoch, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                         % (train_loss, 100.*correct/total, correct, total))
+    if epoch//5 == 0 or train_loss < best_loss:
+
         save_path = save_model + "/checkpoint/ellipse-epoch-" + str(epoch) + ".pth"
         
         # Save model afer each epoch
@@ -125,7 +124,6 @@ def validate():
             outputs = model(inputs)
             loss = criterion(outputs, targets).mean()
             test_loss += loss.item()
-            _, predicted = outputs.max(1)
             total += targets.size(0)
             iou = get_IOU_loss(outputs,targets)
             correct += torch.sum(iou[iou < 0.1])

@@ -41,7 +41,7 @@ def bb_intersection_over_union(boxA, boxB):
     # print(boxA[:,0])
     eps = 1e-8
     tensor_max = max(boxA, boxB)
-    tensor_min = min(boxA, boxB)
+    tensor_min = min(boxA, boxB)    
     xA = tensor_max[:,0]
     yA = tensor_max[:,1]
     xB = tensor_min[:,2]
@@ -71,7 +71,7 @@ def euclidean_distance(x1,y1, x2,y2):
 def get_IOU_loss(outputs, targets):
     box_outputs = get_bouding_box(outputs)
     box_targets = get_bouding_box(targets)
-    IOU =1 - bb_intersection_over_union(box_outputs, box_targets)
+    IOU = 1 - bb_intersection_over_union(box_outputs, box_targets)
     return IOU
 class ellipse_loss(object):
     def __init__(self):
