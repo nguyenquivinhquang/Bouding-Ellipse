@@ -20,6 +20,8 @@ parser.add_argument('-google_drive', type=str, default='./', help='Train on cola
 parser.add_argument('-total_epoch', type=int, default=200, help='Total epoch want to train')
 parser.add_argument('-save_model', type=str, default='./', help='Path to save trained model')
 parser.add_argument('-num_workers',type=int,default=4,help='The number of threads')
+parser.add_argument('-threshold',type=int,default=0.1,help='The threshold for accepted differece area and angle')
+
 args = parser.parse_args()
 
 # ----- Parameter ---- #
@@ -30,7 +32,7 @@ path = args.google_drive
 total_epoch = args.total_epoch
 save_model = args.save_model
 num_workers = args.num_workers
-
+thresh = args.threshold
 label_path = path + "/train_label.csv"
 img_path = path + "/img/"
 
@@ -97,7 +99,7 @@ def train(epoch):
         train_loss += loss.item()
         total += targets.size(0)
         iou = get_IOU_loss(outputs,targets)
-        cond1, cond2 = iou < 0.1,compute_diff_angle(outputs, targets) < 0.1
+        cond1, cond2 = iou <thresh,compute_diff_angle(outputs, targets) <thresh
         correct += torch.sum(iou[cond1==cond2 ])
 
     train_loss = train_loss/(batch_idx+1)
