@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.optim as optim
 import time
 from models.resnet import fbresnet18
-from models.loss_function import ellipse_loss, get_IOU_loss
+from models.loss_function import ellipse_loss, get_IOU_loss, compute_diff_angle
 import argparse
 import os
 
@@ -97,13 +97,14 @@ def train(epoch):
         train_loss += loss.item()
         total += targets.size(0)
         iou = get_IOU_loss(outputs,targets)
-        correct += torch.sum(iou[iou < 0.1])
+        cond1, cond2 = iou < 0.1,compute_diff_angle(outputs, targets) < 0.1
+        correct += torch.sum(iou[cond1==cond2 ])
 
     train_loss = train_loss/(batch_idx+1)
     print(epoch, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                         % (train_loss, 100.*correct/total, correct, total))
     if epoch//5 == 0 or train_loss < best_loss:
-
+        print("saving model at", epoch)
         save_path = save_model + "/checkpoint/ellipse-epoch-" + str(epoch) + ".pth"
         
         # Save model afer each epoch
@@ -145,5 +146,5 @@ if __name__ == '__main__':
         validate()
         torch.cuda.empty_cache()
 
-        if (epoch // 5 == 0): scheduler.step()
+        if (epoch // 40 == 0): scheduler.step()
         print('Epoch {}, lr {}'.format(epoch, optimizer.param_groups[0]['lr']))

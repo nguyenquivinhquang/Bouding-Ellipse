@@ -73,6 +73,9 @@ def get_IOU_loss(outputs, targets):
     box_targets = get_bouding_box(targets)
     IOU = 1 - bb_intersection_over_union(box_outputs, box_targets)
     return IOU
+def compute_diff_angle(outputs, targets):
+
+    return abs(abs(outputs[:,4]) - abs(targets[:,4]))
 class ellipse_loss(object):
     def __init__(self):
         self.smooth_L1 = SmoothL1Loss()
@@ -82,7 +85,7 @@ class ellipse_loss(object):
        
         
         # area_loss =get_IOU_loss(outputs,targets)
-        center_loss = self.smooth_L1(outputs[:,0:3], targets[:,0:3])
+        center_loss = self.smooth_L1(outputs[:,0:4], targets[:,0:4])
         angle_loss = self.smooth_L1(abs(outputs[:,4]) , abs(targets[:,4]))
         # print(area_loss, center_loss, angle_loss)
         return angle_loss  + center_loss
@@ -94,7 +97,8 @@ if __name__ == "__main__":
     # print(atan2(1, 0))
     # bbA = torch.randint(10, (2, 4))
     # bbB = torch.randint(10, (2, 4))
-    bbA = torch.tensor([[3,3,6,6]])
-    bbB = torch.tensor([[3,5,6,6]])
+    bbA = torch.tensor([[3,3,6,6,5]])
+    bbB = torch.tensor([[3,5,6,6,6]])
     print(bbA, '\n-----------\n', bbB)
-    print(bb_intersection_over_union(bbA, bbB))
+    # print(bb_intersection_over_union(bbA, bbB))
+    print(bbA[:,4])

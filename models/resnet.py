@@ -160,6 +160,7 @@ class FBResNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
+
         adaptiveAvgPoolWidth = x.shape[2]
         adaptiveAvgPoolWidth = int(adaptiveAvgPoolWidth)
         x = F.avg_pool2d(x, kernel_size=adaptiveAvgPoolWidth)
