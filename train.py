@@ -21,6 +21,7 @@ parser.add_argument('-total_epoch', type=int, default=200, help='Total epoch wan
 parser.add_argument('-save_model', type=str, default='./', help='Path to save trained model')
 parser.add_argument('-num_workers',type=int,default=4,help='The number of threads')
 parser.add_argument('-threshold',type=int,default=0.1,help='The threshold for accepted differece area and angle')
+parser.add_argument('-resume',type=str,default=None,help='Continue to train model, add the model weigth want to continue to train')
 
 args = parser.parse_args()
 
@@ -37,8 +38,7 @@ label_path = path + "/train_label.csv"
 img_path = path + "/img/"
 
 print(label_path)
-try: os.mkdir('.checkpoint/')
-except: pass
+
 
 
 # batch_size = 2
@@ -68,16 +68,26 @@ model = fbresnet18()
 model.train()
 model.to(device)
 
+# Define loss history
+loss_history = []
+best_loss = 1000000
+cur_epoch = 0
+
 #---------Define loss function ------------#
 criterion = ellipse_loss()
 optimizer = optim.SGD(model.parameters(), lr=0.1,
                       momentum=0.9, weight_decay=5e-4)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
-# Define loss history
-loss_history = []
-cur_epoch = 0
-best_loss = 1000000
+#---- Resume trainning
+if args.resume:
+    weigth_path = args.resume
+    checkpoint = torch.load(weigth_path)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    scheduler.load_state_dict(checkpoint['optimizer_state_dict'])
+    cur_epoch = checkpoint['epoch']
+    print("Resume trainning at epoch:", cur_epoch)
+
 def train(epoch):
     global best_loss
     print('\nEpoch: %d' % epoch)
@@ -146,7 +156,6 @@ if __name__ == '__main__':
         time_elapsed = time.time() - time_start
         print('Training complete in {:.0f}m {:.0f}s'.format( time_elapsed // 60, time_elapsed % 60))
         validate()
-        torch.cuda.empty_cache()
 
         if (epoch // 40 == 0): scheduler.step()
         print('Epoch {}, lr {}'.format(epoch, optimizer.param_groups[0]['lr']))

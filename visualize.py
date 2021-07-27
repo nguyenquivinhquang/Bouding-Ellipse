@@ -47,15 +47,15 @@ def visualize_ellipse(img, ellipse, filename):
     return
 if __name__ == "__main__":
     PATH ='Test_img/'
-    WEIGHT_PATH = 'ellipse-epoch-117.pth'
+    WEIGHT_PATH = 'ellipse-epoch-114.pth'
     model = fbresnet18()
     checkpoint = torch.load(WEIGHT_PATH)
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
-
-    original = cv2.imread('Test_img\\000025.jpg',0)
+    
+    original = cv2.imread('Test_img\\000001.jpg')
     original = cv2.resize(original, (224,224))
-    image = read_image('Test_img/000025.jpg') 
+    image = read_image('Test_img/000001.jpg') 
     print(type(image))
     image = data_transforms(image)
     c,h,w = image.shape

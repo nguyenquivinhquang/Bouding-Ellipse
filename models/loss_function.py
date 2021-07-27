@@ -84,11 +84,11 @@ class ellipse_loss(object):
         # print(outputs.shape)
        
         
-        # area_loss =get_IOU_loss(outputs,targets)
+        area_loss =get_IOU_loss(outputs,targets)
         center_loss = self.smooth_L1(outputs[:,0:4], targets[:,0:4])
         angle_loss = self.smooth_L1(abs(outputs[:,4]) , abs(targets[:,4]))
         # print(area_loss, center_loss, angle_loss)
-        return angle_loss  + center_loss
+        return angle_loss  + center_loss + area_loss
 
 
 if __name__ == "__main__":
