@@ -19,7 +19,7 @@ parser.add_argument('-batch_size', type=int, default=128, help='batch size for d
 parser.add_argument('-google_drive', type=str, default='./', help='Train on colab')
 parser.add_argument('-total_epoch', type=int, default=200, help='Total epoch want to train')
 parser.add_argument('-save_model', type=str, default='./', help='Path to save trained model')
-
+parser.add_argument('-num_workers',type=int,default=4,help='The number of threads')
 args = parser.parse_args()
 
 # ----- Parameter ---- #
@@ -29,6 +29,8 @@ learning_rate = 0.1
 path = args.google_drive
 total_epoch = args.total_epoch
 save_model = args.save_model
+num_workers = args.num_workers
+
 label_path = path + "/train_label.csv"
 img_path = path + "/img/"
 
@@ -56,8 +58,8 @@ total_data = len(dataset)
 total_train = int(0.9 * total_data)
 total_val = total_data - total_train
 train_set, val_set = torch.utils.data.random_split(dataset, [total_train, total_val])
-trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=4)
-testloader = DataLoader(val_set, batch_size=batch_size, shuffle=True, num_workers=4)
+trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+testloader = DataLoader(val_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
 #------ Define network ----- #
 model = fbresnet18()
