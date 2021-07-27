@@ -84,7 +84,7 @@ if args.resume:
     weigth_path = args.resume
     checkpoint = torch.load(weigth_path)
     model.load_state_dict(checkpoint['model_state_dict'])
-    scheduler.load_state_dict(checkpoint['optimizer_state_dict'])
+    # scheduler.load_state_dict(checkpoint['optimizer_state_dict'])
     cur_epoch = checkpoint['epoch']
     print("Resume trainning at epoch:", cur_epoch)
 
