@@ -106,7 +106,7 @@ class FBResNet(nn.Module):
         self.inplanes = 64
         # Special attributs
         self.input_space = None
-        self.input_size = (299, 299, 3)
+        self.input_size = (224, 224, 3)
         self.mean = None
         self.std = None
         super(FBResNet, self).__init__()
@@ -119,12 +119,12 @@ class FBResNet(nn.Module):
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
+        # self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
 
-        self.first_linear = nn.Linear(512 * block.expansion, 1024)
-        self.mid_linear = nn.Linear(1024, 512)
+        # self.first_linear = nn.Linear(256 * block.expansion, 1024)
+        # self.mid_linear = nn.Linear(1024, 512)
         
-        self.last_linear = nn.Linear(512, num_classes)
+        self.last_linear = nn.Linear(256 * block.expansion, num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -161,7 +161,7 @@ class FBResNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
-        x = self.layer4(x)
+        # x = self.layer4(x)
         return x
 
     def logits(self, features):
@@ -169,8 +169,8 @@ class FBResNet(nn.Module):
         x = F.avg_pool2d(features, kernel_size=adaptiveAvgPoolWidth)
         x = x.view(x.size(0), -1)
 
-        x = self.first_linear(x)
-        x = self.mid_linear(x)
+        # x = self.first_linear(x)
+        # x = self.mid_linear(x)
         x = self.last_linear(x)
         return x
 

@@ -64,7 +64,7 @@ trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_wor
 testloader = DataLoader(val_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
 #------ Define network ----- #
-model = fbresnet50()
+model = fbresnet18()
 model.train()
 model.to(device)
 
@@ -101,6 +101,7 @@ def train(epoch):
 
         optimizer.zero_grad()
         outputs = model(inputs)
+        # print(outputs)
         # print(outputs.shape)
         loss = criterion(outputs, targets)
        

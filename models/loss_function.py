@@ -121,8 +121,8 @@ class ellipse_loss(object):
 
         angle_loss = self.smooth_L1(scale_angle(outputs[:,4]), scale_angle(targets[:,4]))
 
-        # print(area_loss, center_loss, angle_loss)
-        # print(angle_loss  + center_loss + area_loss)
+        # print(center_loss, angle_loss)
+        # print(angle_loss  + center_loss)
         return angle_loss  + center_loss
 
 
