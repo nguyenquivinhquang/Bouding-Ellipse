@@ -102,7 +102,7 @@ def get_angle_loss(angle):
 
     atan2_angle = atan2(sin_angle, cos_angle) / pi
 
-    return smooth_l1_loss(atan2_angle, reduction='sum')
+    return smooth_l1_loss(atan2_angle, reduction='mean')
 
 
 class ellipse_loss(object):
@@ -113,7 +113,7 @@ class ellipse_loss(object):
         # print(outputs.shape)
        
         
-        area_loss = abs(torch.log(get_IOU_loss(outputs,targets))).sum()
+        area_loss = abs(torch.log(get_IOU_loss(outputs,targets))).mean()
         center_loss = self.smooth_L1(outputs[:,0:4], targets[:,0:4])
 
         angle = (outputs[:,4] - targets[:,4]) * math.pi

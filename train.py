@@ -110,8 +110,8 @@ def train(epoch):
         iou = get_IOU_loss(outputs,targets)
         cond1, cond2 = iou < thresh,compute_diff_angle(outputs, targets) < thresh
         correct += torch.sum(iou[cond1|cond2 ]) # |: bitwise or
-
-    train_loss = train_loss/(batch_idx+1)
+    print(train_loss, batch_idx)
+    train_loss = train_loss / (batch_idx+1)
     print(epoch, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                         % (train_loss, 100.*correct/total, correct, total))
     if epoch//2 == 0 or train_loss < best_loss:
