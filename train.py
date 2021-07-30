@@ -159,5 +159,5 @@ if __name__ == '__main__':
         
         # validate()
 
-        if (epoch // 40 == 0): scheduler.step()
+        scheduler.step()
         print('Epoch {}, lr {}'.format(epoch, optimizer.param_groups[0]['lr']))
