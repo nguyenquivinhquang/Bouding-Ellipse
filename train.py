@@ -57,7 +57,7 @@ data_transforms = transforms.Compose(transform_train_list)
     
 dataset  = CustomImageDataset(img_dir=img_path, label_dir=label_path, transform=data_transforms)
 total_data = len(dataset)
-total_train = int(0.8 * total_data)
+total_train = int(0.1 * total_data)
 total_val = total_data - total_train
 train_set, val_set = torch.utils.data.random_split(dataset, [total_train, total_val])
 trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
@@ -102,7 +102,8 @@ def train(epoch):
         optimizer.zero_grad()
         outputs = model(inputs)
         # print(outputs.shape)
-        loss = criterion(outputs, targets).mean()
+        loss = criterion(outputs, targets)
+       
         loss.backward()
         optimizer.step()
         # print(outputs.shape)
