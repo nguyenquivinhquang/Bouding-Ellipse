@@ -143,7 +143,7 @@ def validate():
         with torch.no_grad():
             outputs = model(inputs)
             print(outputs[0])
-            exit
+            return
             loss = criterion(outputs, targets).mean()
             test_loss += loss.item()
             total += targets.size(0)
