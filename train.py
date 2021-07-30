@@ -101,14 +101,18 @@ def train(epoch):
 
         optimizer.zero_grad()
         outputs = model(inputs)
+        # print(outputs.shape)
         loss = criterion(outputs, targets).mean()
         loss.backward()
         optimizer.step()
-
+        # print(outputs.shape)
         train_loss += loss.item()
         total += targets.size(0)
         iou = get_IOU_loss(outputs,targets)
         cond1, cond2 = iou < thresh,compute_diff_angle(outputs, targets) < thresh
+
+        # print(cond1.shape, cond2.shape)
+
         correct += torch.sum(iou[cond1|cond2 ]) # |: bitwise or
     print(train_loss, batch_idx)
     train_loss = train_loss / (batch_idx+1)
