@@ -103,29 +103,29 @@ def train(epoch):
         outputs = model(inputs)
         loss = criterion(outputs, targets).mean()
         loss.backward()
-        # loss.sum().backward()
         optimizer.step()
 
         train_loss += loss.item()
         total += targets.size(0)
         iou = get_IOU_loss(outputs,targets)
-        cond1, cond2 = iou <thresh,compute_diff_angle(outputs, targets) <thresh
-        correct += torch.sum(iou[cond1==cond2 ])
+        cond1, cond2 = iou < thresh,compute_diff_angle(outputs, targets) < thresh
+        correct += torch.sum(iou[cond1|cond2 ]) # |: bitwise or
 
     train_loss = train_loss/(batch_idx+1)
     print(epoch, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                         % (train_loss, 100.*correct/total, correct, total))
-    if epoch//5 == 0 or train_loss < best_loss:
+    if epoch//2 == 0 or train_loss < best_loss:
         print("saving model at", epoch)
         save_path = save_model + "/checkpoint/ellipse-epoch-" + str(epoch) + ".pth"
-        
+        if train_loss < best_loss:
+            save_path = save_model + "/checkpoint/ellipse-best-epoch-" + str(epoch) + ".pth"
+            best_loss = train_loss
         # Save model afer each epoch
         torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': train_loss,}, save_path )
-        if train_loss < best_loss: best_loss = train_loss
         
     loss_history.append(train_loss)
 def validate():
@@ -154,8 +154,10 @@ if __name__ == '__main__':
         train(epoch)
         
         time_elapsed = time.time() - time_start
+        
         print('Training complete in {:.0f}m {:.0f}s'.format( time_elapsed // 60, time_elapsed % 60))
-        validate()
+        
+        # validate()
 
         if (epoch // 40 == 0): scheduler.step()
         print('Epoch {}, lr {}'.format(epoch, optimizer.param_groups[0]['lr']))

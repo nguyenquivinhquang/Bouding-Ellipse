@@ -1,11 +1,29 @@
+import math
 from typing import IO
 import numpy
 from math import *
 import torch
 from torch.nn import SmoothL1Loss
-from torch import sqrt, cos, sin,square, max, min, abs
+from torch import sqrt, cos, sin,square, max, min, abs,atan2
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
+
+def smooth_l1_loss(input, target = None, beta = 1.0,reduction='none'):
+    if target == None: target = torch.zeros_like(input)
+    if beta < 1e-5:
+        loss = torch.abs(input - target)
+    else:
+        n = torch.abs(input - target)
+        cond = n < beta
+        loss = torch.where(cond, 0.5 * n ** 2 / beta, n - 0.5 * beta)
+
+    if reduction == "mean":
+        loss = loss.mean() if loss.numel() > 0 else 0.0 * loss.sum()
+    elif reduction == "sum":
+        loss = loss.sum()
+    return loss
+    
 def get_bouding_box(ellipse):
     """Find the minimum rectangle bouding ellipse
 
@@ -73,9 +91,20 @@ def get_IOU_loss(outputs, targets):
     box_targets = get_bouding_box(targets)
     IOU = 1 - bb_intersection_over_union(box_outputs, box_targets)
     return IOU
+
 def compute_diff_angle(outputs, targets):
 
     return abs(abs(outputs[:,4]) - abs(targets[:,4]))
+def get_angle_loss(angle):
+    cos_angle = torch.abs(cos(angle))
+    cond = cos_angle >= 0
+    sin_angle = torch.where(cond, sin(angle), -sin(angle))
+
+    atan2_angle = atan2(sin_angle, cos_angle) / pi
+
+    return smooth_l1_loss(atan2_angle, reduction='mean')
+
+
 class ellipse_loss(object):
     def __init__(self):
         self.smooth_L1 = SmoothL1Loss()
@@ -84,9 +113,12 @@ class ellipse_loss(object):
         # print(outputs.shape)
        
         
-        area_loss =get_IOU_loss(outputs,targets)
+        area_loss = torch.log(get_IOU_loss(outputs,targets))
         center_loss = self.smooth_L1(outputs[:,0:4], targets[:,0:4])
-        angle_loss = self.smooth_L1(abs(outputs[:,4]) , abs(targets[:,4]))
+
+        angle = (outputs[:,4] - targets[:,4]) * math.pi
+
+        angle_loss = get_angle_loss(angle)
         # print(area_loss, center_loss, angle_loss)
         return angle_loss  + center_loss + area_loss
 
@@ -97,8 +129,14 @@ if __name__ == "__main__":
     # print(atan2(1, 0))
     # bbA = torch.randint(10, (2, 4))
     # bbB = torch.randint(10, (2, 4))
-    bbA = torch.tensor([[3,3,6,6,5]])
-    bbB = torch.tensor([[3,5,6,6,6]])
-    print(bbA, '\n-----------\n', bbB)
-    # print(bb_intersection_over_union(bbA, bbB))
-    print(bbA[:,4])
+    # bbA = torch.tensor([[3,3,6,6,5]])
+    # bbB = torch.tensor([[3,5,6,6,6]])
+    # print(bbA, '\n-----------\n', bbB)
+    # # print(bb_intersection_over_union(bbA, bbB))
+    # print(bbA[:,4])
+    alpha = pi / 4
+    bbA = torch.rand((1, 1))
+    bbA[0] = alpha
+    print(alpha)
+    print(cos(bbA[0]))
+    print(math.cos(alpha))

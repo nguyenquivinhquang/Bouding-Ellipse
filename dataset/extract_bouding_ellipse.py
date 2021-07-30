@@ -63,22 +63,23 @@ def extract_ellipse(DATA_FOLDER, FILE_LABEL, visualize = False ):
             # _angle = _angle * math.pi / 180.0
             ouput = '{file_name} {x} {y} {a} {b} {angle} {_a} \n'.format(file_name=file,x=x1,y=y1,a=len_a,b=len_b,angle=_angle,_a = _angle * math.pi / 180.0)
             total +=1 
-            table.append([file,x1,y1,len_a, len_b, _angle * math.pi / 180.0])
+            print(_angle,  _angle * math.pi / 180.0)
+            # table.append([file,x1,y1,len_a, len_b, _angle * math.pi / 180.0])
             # if (total > 100): break
             # label.write(ouput)
             # print('Ok:', file)
             # cv2.waitKey(0)
             # break
         except: print("Error:", file)
-    df = DataFrame(table, columns=['Image_name', 'center_x','center_y','len_a','len_b','angle_in_radian'])
-    df.to_csv(FILE_LABEL, header=True, index=False)
+    # df = DataFrame(table, columns=['Image_name', 'center_x','center_y','len_a','len_b','angle_in_radian'])
+    # df.to_csv(FILE_LABEL, header=True, index=False)
         
     return
 
 
 if __name__ == "__main__":
 
-    DATA_FOLDER = '/mnt/Data/AIC-Reid/AIC20_track2/train_foreground/'
+    DATA_FOLDER = 'D:/AIC-Reid/AIC20_track2/train_foreground/'
     FILE_LABEL = './dataset/train_label.csv'
 
     extract_ellipse(DATA_FOLDER=DATA_FOLDER, FILE_LABEL=FILE_LABEL, visualize=False)
