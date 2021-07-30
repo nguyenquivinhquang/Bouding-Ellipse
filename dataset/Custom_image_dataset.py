@@ -19,7 +19,7 @@ def transform_label(label):
     label[0] = (label[0]-112)/224
     label[1] = (label[1]-112)/224
     label[2] /= 224
-    label[3] /=224
+    label[3] /= 224
     label[4] / pi
     return label
     
@@ -64,11 +64,4 @@ if __name__ == "__main__":
     for i, batch in enumerate(train_dataloader):
         print(i, batch[0].shape, batch[1])
         break
-    # train_features, train_labels = next(iter(train_dataloader))
-    # print(f"Feature batch shape: {train_features.size()}")
 
-    # print(f"Labels batch shape: {train_labels.size()}")
-    # img = train_features[0].squeeze()
-    # label = train_labels[1]
-    # print(label.shape)
-    # for t in  label: print(t)

@@ -123,8 +123,8 @@ class FBResNet(nn.Module):
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         # self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
-        self.last_linear = nn.Linear(256, num_classes)
-
+        self.mid_linear = nn.Linear(256, 512)
+        self.last_linear = nn.Linear(512, num_classes)
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
@@ -165,6 +165,8 @@ class FBResNet(nn.Module):
         adaptiveAvgPoolWidth = int(adaptiveAvgPoolWidth)
         x = F.avg_pool2d(x, kernel_size=adaptiveAvgPoolWidth)
         x = x.view(x.size(0), -1)
+
+        x = self.mid_linear(x)
         x = self.last_linear(x)
         return x
 
@@ -188,7 +190,7 @@ def fbresnet34(num_classes=5):
     return model
 
 
-def fbresnet50(num_classes=1000):
+def fbresnet50(num_classes=5):
     """Constructs a ResNet-50 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet

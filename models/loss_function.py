@@ -116,16 +116,14 @@ class ellipse_loss(object):
         # print(outputs.shape)
        
         
-        area_loss = abs(torch.log(get_IOU_loss(outputs,targets))).mean()
+        # area_loss = abs((get_IOU_loss(outputs,targets))).mean()
         center_loss = self.smooth_L1(outputs[:, 0:4], targets[:,0:4])
 
-        scale = scale_angle(outputs[:,4])
+        angle_loss = self.smooth_L1(scale_angle(outputs[:,4]), scale_angle(targets[:,4]))
 
-
-        angle_loss = self.smooth_L1(scale, outputs[:,4])
         # print(area_loss, center_loss, angle_loss)
         # print(angle_loss  + center_loss + area_loss)
-        return angle_loss  + center_loss + area_loss
+        return angle_loss  + center_loss
 
 
 if __name__ == "__main__":
@@ -140,8 +138,8 @@ if __name__ == "__main__":
     # # print(bb_intersection_over_union(bbA, bbB))
     # print(bbA[:,4])
     alpha = pi / 4
-    bbA = torch.rand((1, 1))
-    bbA[0] = alpha
-    print(alpha)
-    print(cos(bbA[0]))
-    print(math.cos(alpha))
+    bbA = torch.rand((2, 1))
+    bbA[0] = -1/3
+    bbA[1] = 4/3
+    print(scale_angle(bbA))
+    

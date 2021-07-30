@@ -71,7 +71,7 @@ def visualize_ellipse(img, ellipse, filename):
 
 if __name__ == "__main__":
     PATH ='D:/AIC-Reid/AIC20_track2/AIC20_ReID/image_test/'
-    WEIGHT_PATH = 'E:\python\Bouding-Ellipse\checkpoint\ellipse-epoch-298.pth'
+    WEIGHT_PATH = 'E:\python\Bouding-Ellipse\checkpoint\ellipse-best-epoch-44.pth'
     model = fbresnet18()
     checkpoint = torch.load(WEIGHT_PATH)
     model.load_state_dict(checkpoint['model_state_dict'])

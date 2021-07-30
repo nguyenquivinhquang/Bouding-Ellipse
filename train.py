@@ -8,7 +8,7 @@ import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.optim as optim
 import time
-from models.resnet import fbresnet18
+from models.resnet import fbresnet18,fbresnet50
 from models.loss_function import ellipse_loss, get_IOU_loss, compute_diff_angle
 import argparse
 import os
@@ -57,14 +57,14 @@ data_transforms = transforms.Compose(transform_train_list)
     
 dataset  = CustomImageDataset(img_dir=img_path, label_dir=label_path, transform=data_transforms)
 total_data = len(dataset)
-total_train = int(0.1 * total_data)
+total_train = int(0.9 * total_data)
 total_val = total_data - total_train
 train_set, val_set = torch.utils.data.random_split(dataset, [total_train, total_val])
 trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 testloader = DataLoader(val_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
 #------ Define network ----- #
-model = fbresnet18()
+model = fbresnet50()
 model.train()
 model.to(device)
 
