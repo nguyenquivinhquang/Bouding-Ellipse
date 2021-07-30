@@ -23,7 +23,7 @@ def smooth_l1_loss(input, target = None, beta = 1.0,reduction='none'):
     elif reduction == "sum":
         loss = loss.sum()
     return loss
-    
+
 def get_bouding_box(ellipse):
     """Find the minimum rectangle bouding ellipse
 
@@ -102,7 +102,7 @@ def get_angle_loss(angle):
 
     atan2_angle = atan2(sin_angle, cos_angle) / pi
 
-    return smooth_l1_loss(atan2_angle, reduction='mean')
+    return smooth_l1_loss(atan2_angle, reduction='sum')
 
 
 class ellipse_loss(object):
@@ -113,13 +113,14 @@ class ellipse_loss(object):
         # print(outputs.shape)
        
         
-        area_loss = torch.log(get_IOU_loss(outputs,targets))
+        area_loss = abs(torch.log(get_IOU_loss(outputs,targets))).sum()
         center_loss = self.smooth_L1(outputs[:,0:4], targets[:,0:4])
 
         angle = (outputs[:,4] - targets[:,4]) * math.pi
 
         angle_loss = get_angle_loss(angle)
         # print(area_loss, center_loss, angle_loss)
+        print(angle_loss  + center_loss + area_loss)
         return angle_loss  + center_loss + area_loss
 
 
