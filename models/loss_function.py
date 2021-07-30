@@ -120,7 +120,7 @@ class ellipse_loss(object):
 
         angle_loss = get_angle_loss(angle)
         # print(area_loss, center_loss, angle_loss)
-        print(angle_loss  + center_loss + area_loss)
+        # print(angle_loss  + center_loss + area_loss)
         return angle_loss  + center_loss + area_loss
 
 
