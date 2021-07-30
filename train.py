@@ -142,6 +142,8 @@ def validate():
         inputs, targets = inputs.to(device), targets.to(device)
         with torch.no_grad():
             outputs = model(inputs)
+            print(outputs[0])
+            exit
             loss = criterion(outputs, targets).mean()
             test_loss += loss.item()
             total += targets.size(0)
@@ -162,7 +164,7 @@ if __name__ == '__main__':
         
         print('Training complete in {:.0f}m {:.0f}s'.format( time_elapsed // 60, time_elapsed % 60))
         
-        # validate()
+        validate()
 
         scheduler.step()
         print('Epoch {}, lr {}'.format(epoch, optimizer.param_groups[0]['lr']))
