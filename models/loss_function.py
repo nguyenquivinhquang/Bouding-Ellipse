@@ -96,7 +96,7 @@ def compute_diff_angle(outputs, targets):
 
     return abs(abs(outputs[:,4]) - abs(targets[:,4]))
 
-def get_angle_loss(outputs, targets):
+def scale_angle(outputs):
     # cos_angle = torch.abs(cos(angle))
     # cond = cos_angle >= 0
     # sin_angle = torch.where(cond, sin(angle), -sin(angle))
@@ -105,7 +105,7 @@ def get_angle_loss(outputs, targets):
     outputs = outputs + 1
     outputs = torch.remainder(outputs, 1)
 
-    return smooth_l1_loss(outputs, targets, reduction='mean')
+    return outputs
 
 
 class ellipse_loss(object):
@@ -119,9 +119,10 @@ class ellipse_loss(object):
         area_loss = abs(torch.log(get_IOU_loss(outputs,targets))).mean()
         center_loss = self.smooth_L1(outputs[:, 0:4], targets[:,0:4])
 
-        # angle = (outputs[:,4] - targets[:,4])
+        scale = scale_angle(outputs[:,4])
 
-        angle_loss = get_angle_loss(outputs[:,4] , targets[:,4])
+
+        angle_loss = self.smooth_L1(scale, outputs[:,4])
         # print(area_loss, center_loss, angle_loss)
         # print(angle_loss  + center_loss + area_loss)
         return angle_loss  + center_loss + area_loss
