@@ -11,7 +11,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def smooth_l1_loss(input, target = None, beta = 1.0,reduction='none'):
     if target == None: target = torch.zeros_like(input)
-    if beta < 1e-5:
+    if beta < 1e-3:
         loss = torch.abs(input - target)
     else:
         n = torch.abs(input - target)
@@ -107,13 +107,13 @@ def get_angle_loss(angle):
 
 class ellipse_loss(object):
     def __init__(self):
-        self.smooth_L1 = SmoothL1Loss()
+        self.smooth_L1 = SmoothL1Loss(reduction='mean')
 
     def __call__(self, outputs, targets):
         # print(outputs.shape)
        
         
-        area_loss = abs(torch.log(get_IOU_loss(outputs,targets))).mean()
+        # area_loss = abs(torch.log(get_IOU_loss(outputs,targets))).mean()
         center_loss = self.smooth_L1(outputs[:,0:4], targets[:,0:4])
 
         angle = (outputs[:,4] - targets[:,4]) * math.pi
@@ -121,7 +121,7 @@ class ellipse_loss(object):
         angle_loss = get_angle_loss(angle)
         # print(area_loss, center_loss, angle_loss)
         # print(angle_loss  + center_loss + area_loss)
-        return angle_loss  + center_loss + area_loss
+        return angle_loss  + center_loss 
 
 
 if __name__ == "__main__":

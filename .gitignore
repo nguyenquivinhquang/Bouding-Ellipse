@@ -4,3 +4,4 @@ visualize/
 dataset/img/
 *.rar
 *.zip
+*.pth
